@@ -96,5 +96,6 @@ See directory [example_output/](./example_output/) to examine all six files.
 
 
 ## References
-[1] Merullo, J., et al. (2019). "Climate Dynamics." *Empirical Methods in
-Natural Language Processing*. https://doi.org/10.18653/v1/D19-1666
+[1] Merullo, J., et al. (2019). "Investigating Sports Commentator Bias within a
+Large Corpus of American Football Broadcasts." *Empirical Methods in Natural
+Language Processing*. https://doi.org/10.18653/v1/D19-1666
