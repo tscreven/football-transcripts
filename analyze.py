@@ -10,11 +10,14 @@ from teams import NFL
 
 DATA_PATH = "dataset/raw_transcripts.json"
 OUTPUT_DIR = "output/"
+
 # One transcript in 1962 and then there is a 7 year gap with no game
 # transcripts until 1969.
-NO_PLOT_1962 = True
+PLOT_1962 = False
 # DPI for the scatter plot
 DPI = 300
+# Max number of characters in phrase to put into scatter plot title
+PHRASE_TITLE_CUTOFF = 20
 
 def word_count(phrase):
     '''Return dictionaries of format year: (word count, number of games) for
@@ -55,7 +58,7 @@ def plot(data:dict, title:str, results_path:str, min_sample_size:int):
     yrs = []
     per_game_avgs = []
     for yr, (total_word_count, n) in data.items():
-        if NO_PLOT_1962 and yr == 1962:
+        if not PLOT_1962 and yr == 1962:
             continue
         if n >= min_sample_size:
             yrs.append(yr)
@@ -95,11 +98,15 @@ def table_output(data:dict, results_path:str, nfl:bool, ncaa:bool):
 
 def main():
     parser = argparse.ArgumentParser(description="Yearly trends of mentions of specific phrase in NFL and NCAA football broadcasts.")
-    parser.add_argument("phrase", help="Phrase to run analysis for.")
+    parser.add_argument("phrase", nargs = '+', help="Phrase to run analysis for.")
     parser.add_argument("-sample", type=int, default=5, help="Minimum number of transcripts in a year to include in plot.")
     args = parser.parse_args()
 
-    phrase = args.phrase.lower()
+    if args.sample <= 0:
+        print(f"\n\tInvalid value for argument sample: {args.sample}! Sample must be positive.", end="\n\n")
+        exit(1)
+
+    phrase = ' '.join(args.phrase).lower()
 
     directory = f"{OUTPUT_DIR}/{phrase}-n={args.sample}"
     if not os.path.exists(directory):
@@ -107,8 +114,10 @@ def main():
 
     nfl, ncaa, both = word_count(phrase)
 
-    phrase_upper = phrase[0].upper() + phrase[1:]
-    title_end = f"\"{phrase_upper}\" Mentions Per Game"
+    phrase_title = (phrase[0].upper() + phrase[1:])
+    if len(phrase_title) > PHRASE_TITLE_CUTOFF:
+        phrase_title = f"{phrase_title[:20]} ..."
+    title_end = f"\"{phrase_title}\" Mentions Per Game"
 
     plot(nfl, f"NFL {title_end}", f"{directory}/nfl_plot.png", args.sample)
     table_output(nfl, f"{directory}/nfl_per_game_stats.csv", True, False)

@@ -1,8 +1,8 @@
 # Football Broadcast Transcript Analysis
 
-This codebase analyzes the long term trends of the frequency a specific phrase
-is said in both NFL and college football broadcasts. Specifically, it analyzes
-over the years how often per-game broadcast a phrase is said. 
+This codebase analyzes the long term trends of the frequency phrases are said
+in both NFL and college football broadcasts. Specifically, it analyzes over the
+years how often a phrase is said. 
 
 The main Python script `analyze.py` generates a scatter plot and a table for a
 given target phrase. The scatter plot displays the yearly per-game broadcast
@@ -12,23 +12,25 @@ for each year the total number of times the target phrase is said, the number
 of game broadcasts in the dataset for that year, and the per-game broadcast
 target phrase average.
 
-### Outline
-* [Dataset Download](#dataset-download)
-* [Environment Setup](#environment-setup)
-* [Usage](#usage)
+## Outline
+1. [Dataset Download](#dataset-download)
+2. [Environment Setup](#environment-setup)
+3. [Usage](#usage)
+4. [Example Usage](#example-usage)
 
 ## Dataset Download
-The broadcast transcript dataset is sourced from Merullo et al.'s paper which
-was published in EMNLP [1]. It contains both NFL and college (NCAA) football
-broadcast transcripts between 1962 and 2018; dataset size information
-[here](./dataset_size.csv).
+The broadcast transcript dataset is sourced from Merullo et al. [1]. It
+contains both NFL and college (NCAA) football broadcast transcripts between
+1962 and 2018; dataset size information [here](./dataset_size.csv).
 
 Download the 1.4G dataset from: 
 > https://drive.google.com/file/d/15XVD0kumvPhJkwj20an2kwWCdL9w_cy7/view?usp=sharing
 
-Move the downloaded zip file to this project and unzip it. For example, on
-computers running MacOS:
+Clone the repository, then move the downloaded zip file to this project, and
+then expand the zip file. For example, on computers running MacOS:
+
 ```bash
+git clone https://github.com/tscreven/football-transcripts.git
 cd football-transcripts
 mv Downloads/dataset.zip .
 unzip dataset.zip
@@ -51,7 +53,7 @@ pip install -r requirements.txt
 
 ## Usage
 File `analyze.py` runs the analysis described above. It generates analysis for
-three dataset subsets. 
+three sets of broadcasts. 
 1. NFL broadcasts only
 2. College football broadcasts only
 3. The entire dataset: both NFL and college football broadcasts
@@ -60,35 +62,36 @@ Each subset has its own CSV file and scatter plot image; each execution
 creates 6 files. 
 
 ```
-python3 analyze.py <phrase> <-sample>
+python3 analyze.py phrase -sample n
 ```
-* `<phrase>`: Target phrase to run analysis for. Phrase is not case sensitive;
-  the code automatically lowercases all processed transcripts and the provided
-  phrase. For phrases longer than one word, write a backslash before any space.
-  For example, for "first down" write "first\ down". No text is removed from
-  the raw transcripts.
-* `<-sample>`: Optional argument setting the sample size requirement for the
-  minimum number of broadcast transcripts in a year to plot that point on the
-  scatter plot. Default value is 5. This argument has no effect on the table
-  written to the CSV file. 
+* `phrase`: Positional argument to input the target phrase. Phrase is not
+  case sensitive; the code automatically lowercases all processed transcripts
+  and the provided phrase. No backslash (\\) character is necessary for spaces
+  in the phrase, the code processes spaces.
+* `-sample`: Optional integer argument setting `n` as the minimum number of
+  broadcast transcripts for years plotted on the scatter plot.  Default
+  value is 5. This argument has no effect on the table written to the CSV file.
+  If given, must be written after `phrase`.
 
 Execution results are written to directory `output/<phrase>-n=<sample>/`.
 
 The code defaults to not plot the one broadcast transcript in 1962 because
 there is a seven year gap between it and the next year with a broadcast (see
 [dataset_size.csv](./dataset_size.csv)). To avoid the large gap in the plot, it
-defaults to not show it. To change this, set variable `NO_PLOT_1962` to `False`
+defaults to not show it. To change this, set variable `PLOT_1962` to `True`
 in [analyze.py](./analyze.py). Also, if `-sample` is set to a number larger
-than 1, this point will not be plotted no matter the value of `NO_PLOT_1962`. 
+than 1, this point will not be plotted no matter the value of `PLOT_1962`. 
 
 ### Example Usage
 For example, if you want to see how awareness of concussions on football
-broadcasts has changed over the years, you can run the following command.
+broadcasts has changed over the years, you can run the following command:
+
 ```bash
 python3 analyze.py concussion -sample 10
 ```
-It creates three CSV files and three scatter plot images. The NFL and college
-football combined broadcast scatter plot looks as follows:
+
+This creates three CSV files and three scatter plot images. Below is the NFL
+and college football combined broadcast scatter plot.
 
 ![](./example_output/plot.png)
 
