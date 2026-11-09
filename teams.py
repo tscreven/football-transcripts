@@ -11,7 +11,7 @@ NFL = ['arizona_cardinals', 'atlanta_falcons', 'baltimore_colts',
        'pittsburgh_steelers', 'san_diego_chargers', 'san_francisco_49ers', 
        'seattle_seahawks', 'st_louis_cardinals', 'st_louis_rams', 
        'tampa_bay_buccaneers', 'carolina_panthers', 'tennessee_oilers', 
-       'tennessee_titans', 'tennessee_titansst_louis_rams', 
+       'tennessee_titans', 'tennessee_titans', 'st_louis_rams', 
        'washington_redskins']
 
 NCAA = ['air_force', 'akron', 'alabama', 'appalachian_state', 'arizona', 
