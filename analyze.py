@@ -1,12 +1,17 @@
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-import numpy as np
+'''Execute year to year analysis of number of times a phrase was said in NFL
+and college football tv broadcasts.
+'''
+
 import argparse
 import json
 import os
+import sys
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+import numpy as np
 import pandas as pd
 
-from teams import NFL
+from nfl_teams import NFL
 
 DATA_PATH = "dataset/raw_transcripts.json"
 OUTPUT_DIR = "output/"
@@ -23,32 +28,32 @@ def word_count(phrase):
     '''Return dictionaries of format year: (word count, number of games) for
     NFL, NCAA, and both NFL and NCAA football games.'''
 
-    with open(DATA_PATH) as f:
+    with open(DATA_PATH, encoding='utf-8') as f:
         data = json.load(f)
 
     nfl = {}
     ncaa = {}
-    all = {}
+    all_broadcasts = {}
 
-    def add_to_dict(items, yr, word_count):
+    def add_to_dict(items, yr, num_words):
         if yr not in items:
-            items[yr] = [word_count, 1]
+            items[yr] = [num_words, 1]
         else:
-            items[yr][0] += word_count
+            items[yr][0] += num_words
             items[yr][1] += 1
 
     for items in data.values():
         yr = int(items['year'])
         transcript = items['transcript'].lower()
-        word_count = transcript.count(phrase)
+        word_len = transcript.count(phrase)
 
         if items['teams'][0] in NFL:
-            add_to_dict(nfl, yr, word_count)
+            add_to_dict(nfl, yr, word_len)
         else:
-            add_to_dict(ncaa, yr, word_count)
-        add_to_dict(all, yr, word_count)
+            add_to_dict(ncaa, yr, word_len)
+        add_to_dict(all_broadcasts, yr, word_len)
 
-    return nfl, ncaa, all
+    return nfl, ncaa, all_broadcasts
 
 
 def plot(data:dict, title:str, results_path:str, min_sample_size:int):
@@ -93,18 +98,20 @@ def table_output(data:dict, results_path:str, nfl:bool, ncaa:bool):
         data[yr] = (total_word_count, n, total_word_count / n)
 
     df = pd.DataFrame.from_dict(data)
-    df.T.to_csv(results_path, header=["Total Phrase Count", "Game Transcripts", "Average Per Game Count"], index_label="Year")
+    h = ["Total Phrase Count", "Game Transcripts", "Average Per Game Count"]
+    df.T.to_csv(results_path, header=h, index_label="Year")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Yearly trends of mentions of specific phrase in NFL and NCAA football broadcasts.")
+    '''Run analysis.'''
+    parser = argparse.ArgumentParser(description="Yearly trends of phrase use in football broadcasts.")
     parser.add_argument("phrase", nargs = '+', help="Phrase to run analysis for.")
     parser.add_argument("-sample", type=int, default=5, help="Minimum number of transcripts in a year to include in plot.")
     args = parser.parse_args()
 
     if args.sample <= 0:
         print(f"\n\tInvalid value for argument sample: {args.sample}! Sample must be positive.", end="\n\n")
-        exit(1)
+        sys.exit(1)
 
     phrase = ' '.join(args.phrase).lower()
 
@@ -114,7 +121,7 @@ def main():
 
     nfl, ncaa, both = word_count(phrase)
 
-    phrase_title = (phrase[0].upper() + phrase[1:])
+    phrase_title = phrase[0].upper() + phrase[1:]
     if len(phrase_title) > PHRASE_TITLE_CUTOFF:
         phrase_title = f"{phrase_title[:20]} ..."
     title_end = f"\"{phrase_title}\" Mentions Per Game"
